@@ -1,0 +1,52 @@
+link: https://www.interviewbit.com/problems/max-edge-queries/hints/
+
+vector<vector<pair<int,int>>> g;
+vector<pair<int,int>> parent;
+vector<int> depth;
+int root;
+
+void dfs(int x, int from, int l){
+    depth[x] = l;
+    for(auto [to, w]: g[x]){
+        if(to == from) continue;
+        parent[to] = {x, w};
+        dfs(to, x, l+1);
+    }
+}
+
+int lca(int x, int y){
+    int ans = 0;
+    if(x == y) return ans;
+    if(depth[x] > depth[y]){
+        auto [p, w] = parent[x];
+        return max(w, lca(p, y));
+    } else {
+        auto [p, w] = parent[y];
+        return max(w, lca(x, p));
+    }
+}
+
+vector<int> Solution::solve(vector<vector<int> > &a, vector<vector<int> > &q) {
+    int n = a.size() + 1;
+    g.assign(n, {});
+    parent.assign(n, {});
+    depth.assign(n, {});
+    for(auto v: a){
+        int x = v[0] - 1;
+        int y = v[1] - 1;
+        int w = v[2];
+        g[x].push_back(make_pair(y, w));
+        g[y].push_back(make_pair(x, w));
+    }
+    root = rand() % n;
+    dfs(root, -1, 0);
+    
+    vector<int> ans;
+    for(auto v: q){
+        int x = v[0] - 1;
+        int y = v[1] - 1;
+        ans.push_back(lca(x, y));
+    }
+    return ans;
+}
+
